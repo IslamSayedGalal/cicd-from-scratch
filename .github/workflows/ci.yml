@@ -1,5 +1,10 @@
+name: CI
+
 on:
-    pull_request:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-test:
@@ -24,14 +29,12 @@ jobs:
       - name: Build Docker image
         run: docker build -t cicd-from-scratch:${{ github.sha }} .
 
-      - name: Save Docker image to tar archive
-        run: |
-          mkdir -p image-artifacts
-          docker save cicd-from-scratch:${{ github.sha }} -o image-artifacts/cicd-from-scratch_${{ github.sha }}.tar
+      - name: Save Docker image artifact
+        run: docker save cicd-from-scratch:${{ github.sha }} -o cicd-from-scratch.tar
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v7.0.1
         with:
           name: docker-image
-          path: image-artifacts/cicd-from-scratch_${{ github.sha }}.tar
+          path: cicd-from-scratch.tar
           retention-days: 1
