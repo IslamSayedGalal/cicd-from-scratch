@@ -22,4 +22,16 @@ jobs:
         run: npm test
 
       - name: Build Docker image
-        run: docker build -t cicd-from-scratch .
+        run: docker build -t cicd-from-scratch:${{ github.sha }} .
+
+      - name: Save Docker image to tar archive
+        run: |
+          mkdir -p image-artifacts
+          docker save cicd-from-scratch:${{ github.sha }} -o image-artifacts/cicd-from-scratch_${{ github.sha }}.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: docker-image
+          path: image-artifacts/cicd-from-scratch_${{ github.sha }}.tar
+          retention-days: 1
